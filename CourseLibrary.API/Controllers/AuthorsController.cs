@@ -32,7 +32,6 @@ namespace CourseLibrary.API.Controllers
             return Ok(authorDtos);
         }
 
-
         [HttpGet("{authorId:Guid}")]
         public ActionResult<Author> GetAuthorById(Guid authorId)
         {
