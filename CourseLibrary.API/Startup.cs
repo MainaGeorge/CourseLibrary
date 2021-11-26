@@ -1,3 +1,4 @@
+using CourseLibrary.API.ActionFilters;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.Data;
 using CourseLibrary.API.ExtensionMethods;
@@ -29,6 +30,7 @@ namespace CourseLibrary.API
             services.AddConfiguredControllers();
             services.AddCustomServices();
             services.AddAutoMapperConfig();
+            services.AddScoped<AuthorExistsFilter>();
             services.AddSwaggerDocumentationTools();
 
         }
