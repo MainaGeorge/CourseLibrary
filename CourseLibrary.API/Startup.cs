@@ -1,6 +1,10 @@
+using CourseLibrary.API.Contracts;
 using CourseLibrary.API.Data;
+using CourseLibrary.API.ExtensionMethods;
+using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,15 +24,13 @@ namespace CourseLibrary.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<CourseLibraryContext>(opts =>
-            {
-                opts.UseSqlServer(Configuration.GetConnectionString("Default"));
-            });
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "CourseLibrary.API", Version = "v1" });
-            });
+
+            services.AddDbContext(Configuration);
+            services.AddConfiguredControllers();
+            services.AddCustomServices();
+            services.AddAutoMapperConfig();
+            services.AddSwaggerDocumentationTools();
+
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

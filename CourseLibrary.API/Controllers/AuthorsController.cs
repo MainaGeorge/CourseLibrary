@@ -2,27 +2,34 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Net;
+using AutoMapper;
 using CourseLibrary.API.Contracts;
+using CourseLibrary.API.DTOs;
 using CourseLibrary.API.Entities;
 
 namespace CourseLibrary.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authors")]
     [ApiController]
     public class AuthorsController : ControllerBase
     {
         private readonly ICourseLibraryRepository _repo;
+        private readonly IMapper _mapper;
 
-        public AuthorsController(ICourseLibraryRepository repo)
+        public AuthorsController(ICourseLibraryRepository repo, IMapper mapper)
         {
             _repo = repo;
+            _mapper = mapper;
         }
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
         public ActionResult<IEnumerable<Author>> GetAuthors()
         {
-            return Ok(_repo.GetAuthors());
+            var authors = _repo.GetAuthors();
+            var authorDtos = _mapper.Map<IEnumerable<AuthorDto>>(authors);
+
+            return Ok(authorDtos);
         }
 
 
@@ -33,7 +40,7 @@ namespace CourseLibrary.API.Controllers
 
             if (author is null) return NotFound();
 
-            return Ok(author);
+            return Ok(_mapper.Map<AuthorDto>(author));
         }
     }
 }
