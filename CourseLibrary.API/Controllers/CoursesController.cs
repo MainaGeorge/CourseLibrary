@@ -6,6 +6,7 @@ using CourseLibrary.API.ActionFilters;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.DTOs;
 using CourseLibrary.API.Entities;
+using CourseLibrary.API.RequestParameters;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -24,13 +25,14 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CourseDto>> GetCourses(Guid authorId)
+        public ActionResult<IEnumerable<CourseDto>> GetCourses(Guid authorId, 
+            CoursesRequestParameters parameters)
         {
             var author = HttpContext.Items["author"] as Author;
 
             if (author!.Id != authorId) return BadRequest();
             
-            var courses = _repo.GetCourses(author!.Id);
+            var courses = _repo.GetCourses(authorId, parameters);
 
             if (courses is null) return NotFound();
 
