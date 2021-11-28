@@ -18,8 +18,8 @@ namespace CourseLibrary.API.Controllers
 
         public AuthorsController(ICourseLibraryRepository repo, IMapper mapper)
         {
-            _repo = repo;
-            _mapper = mapper;
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
+            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
@@ -32,14 +32,29 @@ namespace CourseLibrary.API.Controllers
             return Ok(authorDtos);
         }
 
-        [HttpGet("{authorId:Guid}")]
-        public ActionResult<Author> GetAuthorById(Guid authorId)
+        [HttpGet("{authorId:Guid}", Name = nameof(GetAuthorById))]
+        public ActionResult<AuthorDto> GetAuthorById(Guid authorId)
         {
             var author = _repo.GetAuthor(authorId);
 
             if (author is null) return NotFound();
 
             return Ok(_mapper.Map<AuthorDto>(author));
+        }
+
+        [HttpPost]
+        public ActionResult<AuthorDto> CreateAuthor(
+            [FromBody] AuthorForCreationDto authorDto)
+        {
+            var author = _mapper.Map<Author>(authorDto);
+
+            _repo.AddAuthor(author);
+            _repo.Save();
+
+            var authorToReturn = _mapper.Map<AuthorDto>(author);
+
+            return CreatedAtRoute(nameof(GetAuthorById),
+                new {authorId = authorToReturn.Id}, authorToReturn);
         }
     }
 }

@@ -18,6 +18,8 @@ namespace CourseLibrary.API.Mappings
                         config.MapFrom(p => $"{p.LastName} {p.FirstName}"));
 
             CreateMap<Course, CourseDto>();
+            CreateMap<CourseForCreationDto, Course>();
+            CreateMap<AuthorForCreationDto, Author>();
 
         }
     }

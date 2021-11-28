@@ -33,8 +33,6 @@ namespace CourseLibrary.API.ActionFilters
                     context.HttpContext.Items.Add("author", author);
                 }
             }
-
-             
         }
 
         public void OnActionExecuted(ActionExecutedContext context)
