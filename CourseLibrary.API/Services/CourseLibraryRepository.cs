@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.Data;
 using CourseLibrary.API.Entities;
+using CourseLibrary.API.RequestParameters;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CourseLibrary.API.Services
 {
@@ -52,16 +55,18 @@ namespace CourseLibrary.API.Services
             return _context.Courses.FirstOrDefault(c => c.AuthorId == authorId && c.Id == courseId);
         }
 
-        public IEnumerable<Course> GetCourses(Guid authorId)
+        public IEnumerable<Course> GetCourses(Guid authorId, CoursesRequestParameters parameters)
         {
-            if (authorId == Guid.Empty)
-            {
-                throw new ArgumentNullException(nameof(authorId));
-            }
+            if (parameters is null) throw new ArgumentNullException(nameof(parameters));
+            if (authorId == Guid.Empty) throw new ArgumentNullException(nameof(authorId));
 
-            return _context.Courses
-                        .Where(c => c.AuthorId == authorId)
-                        .OrderBy(c => c.Title).ToList();
+            var courses = _context.Courses as IQueryable<Course>;
+
+            return courses
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize)
+                .ToList();
+
         }
 
         public void UpdateCourse(Course course)
@@ -118,11 +123,22 @@ namespace CourseLibrary.API.Services
             return _context.Authors.FirstOrDefault(a => a.Id == authorId);
         }
 
-        public IEnumerable<Author> GetAuthors()
+        public IEnumerable<Author> GetAuthors(AuthorRequestParameters parameters)
         {
-            return _context.Authors.ToList<Author>();
+            if (parameters is null) throw new ArgumentNullException(nameof(parameters));
+
+            var authors = _context.Authors as IQueryable<Author>;
+
+            authors = FilterByMainCategory(parameters, authors);
+
+            authors = FilterByFirstAndLastName(authors, parameters.FirstName, parameters.LastName);
+
+            return authors
+                .Skip((parameters.PageNumber-1) * parameters.PageSize)
+                .Take(parameters.PageSize)
+                .ToList<Author>();
         }
-         
+
         public IEnumerable<Author> GetAuthors(IEnumerable<Guid> authorIds)
         {
             if (authorIds == null)
@@ -158,6 +174,43 @@ namespace CourseLibrary.API.Services
             {
                // dispose resources when needed
             }
+        }
+
+        private static IQueryable<Author> FilterByFirstAndLastName(IQueryable<Author> authors,
+            string firstName, string lastName)
+        {
+            switch (string.IsNullOrWhiteSpace(firstName))
+            {
+                case false when !string.IsNullOrWhiteSpace(lastName):
+                    authors = authors.Where(a => string.Equals(a.FirstName, firstName.Trim(),
+                        StringComparison.CurrentCultureIgnoreCase));
+                    break;
+                case false:
+                    authors = authors.Where(a => string.Equals(a.FirstName, firstName,
+                        StringComparison.CurrentCultureIgnoreCase));
+                    break;
+
+                default:
+                {
+                    if (!string.IsNullOrWhiteSpace(lastName))
+                    {
+                        authors = authors.Where(a => string.Equals(a.LastName, lastName,
+                            StringComparison.CurrentCultureIgnoreCase));
+                    }
+                    break;
+                }
+            }
+
+            return authors;
+        }
+
+        private static IQueryable<Author> FilterByMainCategory(AuthorRequestParameters parameters, IQueryable<Author> authors)
+        {
+            if (!string.IsNullOrWhiteSpace(parameters.MainCategory))
+                authors = authors.Where(a => a.MainCategory.ToLower()
+                    .Contains(parameters.MainCategory.ToLower()));
+
+            return authors;
         }
     }
 }

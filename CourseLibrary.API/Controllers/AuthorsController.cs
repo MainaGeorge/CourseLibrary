@@ -6,6 +6,7 @@ using AutoMapper;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.DTOs;
 using CourseLibrary.API.Entities;
+using CourseLibrary.API.RequestParameters;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -24,9 +25,10 @@ namespace CourseLibrary.API.Controllers
 
         [HttpGet]
         [ProducesResponseType((int)HttpStatusCode.OK)]
-        public ActionResult<IEnumerable<Author>> GetAuthors()
+        public ActionResult<IEnumerable<Author>> GetAuthors(
+            [FromQuery] AuthorRequestParameters parameters)
         {
-            var authors = _repo.GetAuthors();
+            var authors = _repo.GetAuthors(parameters);
             var authorDtos = _mapper.Map<IEnumerable<AuthorDto>>(authors);
 
             return Ok(authorDtos);
