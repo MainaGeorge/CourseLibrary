@@ -1,6 +1,5 @@
 ﻿using CourseLibrary.API.Contracts;
 using CourseLibrary.API.Data;
-using CourseLibrary.API.Mappings;
 using CourseLibrary.API.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -9,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Serialization;
 using System;
 
 namespace CourseLibrary.API.ExtensionMethods
@@ -17,12 +17,17 @@ namespace CourseLibrary.API.ExtensionMethods
     {
         public static IServiceCollection AddConfiguredControllers(this IServiceCollection services)
         {
-            services.AddControllers(op =>
-                        {
-                            op.ReturnHttpNotAcceptable = true;
-                        })
-                    .AddXmlDataContractSerializerFormatters()
-                    .ConfigureApiBehaviorOptions(setupAction =>
+            services
+                .AddControllers(op =>
+                    {
+                        op.ReturnHttpNotAcceptable = true;
+                    })
+                .AddNewtonsoftJson(opts =>
+                    {
+                       opts.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    })
+                .AddXmlDataContractSerializerFormatters()
+                .ConfigureApiBehaviorOptions(setupAction =>
                     {
                         setupAction.InvalidModelStateResponseFactory
                         = context =>

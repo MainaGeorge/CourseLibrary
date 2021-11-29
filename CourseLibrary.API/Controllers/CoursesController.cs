@@ -2,11 +2,15 @@
 using System;
 using System.Collections.Generic;
 using AutoMapper;
-using CourseLibrary.API.ActionFilters;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.DTOs;
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.RequestParameters;
+using Microsoft.AspNetCore.JsonPatch;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace CourseLibrary.API.Controllers
 {
@@ -24,8 +28,8 @@ namespace CourseLibrary.API.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<CourseDto>> GetCourses(Guid authorId, 
-            CoursesRequestParameters parameters)
+        public ActionResult<IEnumerable<CourseDto>> GetCourses([FromRoute]Guid authorId, 
+            [FromQuery]CoursesRequestParameters parameters)
         {
             if(!_repo.AuthorExists(authorId)) return BadRequest();
 
@@ -81,6 +85,39 @@ namespace CourseLibrary.API.Controllers
             _repo.Save();
 
             return NoContent(); 
+        }
+
+        [HttpPatch("{courseId}")]
+        public ActionResult PatchCourse(Guid authorId, Guid courseId, JsonPatchDocument<CourseForUpdatingDto> patcher)
+        {
+            if(!_repo.AuthorExists(authorId)) return BadRequest();
+
+            var course = _repo.GetCourse(authorId, courseId);
+            if(course is null) return NotFound();   
+
+            var toPatch = _mapper.Map<CourseForUpdatingDto>(course);
+
+            patcher.ApplyTo(toPatch, ModelState);
+
+            if (!TryValidateModel(toPatch))
+                return ValidationProblem(ModelState);
+
+            _mapper.Map(toPatch, course);
+
+            _repo.UpdateCourse(course);
+
+            _repo.Save();
+
+            return NoContent();
+            
+        }
+
+         public override ActionResult ValidationProblem(
+            [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
+        {
+            var options = HttpContext.RequestServices
+                .GetRequiredService<IOptions<ApiBehaviorOptions>>();
+            return (ActionResult)options.Value.InvalidModelStateResponseFactory(ControllerContext);
         }
         
     }

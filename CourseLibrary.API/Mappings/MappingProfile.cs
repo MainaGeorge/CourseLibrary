@@ -20,8 +20,10 @@ namespace CourseLibrary.API.Mappings
             CreateMap<Course, CourseDto>();
             CreateMap<CourseForCreationDto, Course>();
             CreateMap<AuthorForCreationDto, Author>();
-            CreateMap<AuthorForUpdatingDto, Author>();
-            CreateMap<CourseForUpdatingDto,Course>();
+            CreateMap<AuthorForUpdatingDto, Author>()
+                .ReverseMap();
+            CreateMap<CourseForUpdatingDto,Course>()
+                .ReverseMap();
 
         }
     }

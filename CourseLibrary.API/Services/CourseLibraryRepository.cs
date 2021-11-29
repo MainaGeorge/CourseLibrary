@@ -60,7 +60,7 @@ namespace CourseLibrary.API.Services
             if (parameters is null) throw new ArgumentNullException(nameof(parameters));
             if (authorId == Guid.Empty) throw new ArgumentNullException(nameof(authorId));
 
-            var courses = _context.Courses as IQueryable<Course>;
+            var courses = _context.Courses.Where(a => a.AuthorId == authorId) as IQueryable<Course>;
 
             return courses
                 .Skip((parameters.PageNumber - 1) * parameters.PageSize)
