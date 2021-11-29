@@ -103,6 +103,20 @@ namespace CourseLibrary.API.Controllers
 
         }
 
+        [HttpDelete("{authorId}")]
+        public IActionResult DeleteAuthor(Guid authorId)
+        {
+            var author = _repo.GetAuthor(authorId);
+
+            if(author is null) return NotFound();   
+
+            _repo.DeleteAuthor(author); 
+
+            _repo.Save();
+
+            return NoContent();
+        }
+
         public override ActionResult ValidationProblem(
             [ActionResultObjectValue] ModelStateDictionary modelStateDictionary)
         {
