@@ -31,6 +31,7 @@ namespace CourseLibrary.API
             services.AddCustomServices();
             services.AddAutoMapperConfig();
             services.AddScoped<AuthorExistsFilter>();
+            services.AddScoped<CourseExistsFilter>();
             services.AddSwaggerDocumentationTools();
 
         }

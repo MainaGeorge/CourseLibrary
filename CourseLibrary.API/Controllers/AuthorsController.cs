@@ -58,5 +58,21 @@ namespace CourseLibrary.API.Controllers
             return CreatedAtRoute(nameof(GetAuthorById),
                 new {authorId = authorToReturn.Id}, authorToReturn);
         }
+
+        [HttpPut("{authorId}")]
+        public IActionResult UpdateAuthor(Guid authorId, AuthorForUpdatingDto authorForUpdatingDto)
+        {
+            var author = _repo.GetAuthor(authorId);
+
+            if(author is null) return NotFound();  
+
+            _mapper.Map(authorForUpdatingDto, author);
+
+            _repo.UpdateAuthor(author); 
+
+            _repo.Save();
+
+            return NoContent();
+        }
     }
 }

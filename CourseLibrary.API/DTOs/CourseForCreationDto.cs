@@ -2,12 +2,8 @@
 
 namespace CourseLibrary.API.DTOs
 {
-    public class CourseForCreationDto
+    public class CourseForCreationDto : CourseForManipulationDto
     {
-        [Required]
-        public string Title{ get; set; }
-
-        [Required]
-        public string Description { get; set; }
+       
     }
 }

@@ -40,6 +40,7 @@ namespace CourseLibrary.API.Controllers
             return Ok(authorsToReturn);
         }
 
+        [HttpPost]
         public ActionResult<IEnumerable<AuthorDto>> CreateCollectionOfAuthors(
             [FromBody] IEnumerable<AuthorForCreationDto> authorsForCreation)
         {

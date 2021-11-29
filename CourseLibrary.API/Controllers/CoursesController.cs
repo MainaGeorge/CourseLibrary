@@ -12,7 +12,6 @@ namespace CourseLibrary.API.Controllers
 {
     [Route("api/authors/{authorId:guid}/courses")]
     [ApiController]
-    [ServiceFilter(typeof(AuthorExistsFilter))]
     public class CoursesController : ControllerBase
     {
         private readonly IMapper _mapper;
@@ -28,10 +27,8 @@ namespace CourseLibrary.API.Controllers
         public ActionResult<IEnumerable<CourseDto>> GetCourses(Guid authorId, 
             CoursesRequestParameters parameters)
         {
-            var author = HttpContext.Items["author"] as Author;
+            if(!_repo.AuthorExists(authorId)) return BadRequest();
 
-            if (author!.Id != authorId) return BadRequest();
-            
             var courses = _repo.GetCourses(authorId, parameters);
 
             if (courses is null) return NotFound();
@@ -42,9 +39,7 @@ namespace CourseLibrary.API.Controllers
         [HttpGet("{courseId:guid}", Name = nameof(GetCourseById))]
         public ActionResult<CourseDto> GetCourseById(Guid authorId,Guid courseId)
         {
-            var author = HttpContext.Items["authorId"] as Author;
-
-            if (author!.Id != authorId) return BadRequest();
+            if(!_repo.AuthorExists(authorId)) return BadRequest();
 
             var course = _repo.GetCourse(authorId, courseId);
 
@@ -58,6 +53,8 @@ namespace CourseLibrary.API.Controllers
             [FromRoute] Guid authorId,
             [FromBody] CourseForCreationDto courseForCreationDto)
         {
+            if(!_repo.AuthorExists(authorId)) return BadRequest();
+
             var course = _mapper.Map<Course>(courseForCreationDto);
             _repo.AddCourse(authorId, course);
             _repo.Save();
@@ -66,7 +63,25 @@ namespace CourseLibrary.API.Controllers
 
             return CreatedAtRoute(nameof(GetCourseById),
                 new {authorId, courseId = course.Id}, courseToReturn);
-
         }
+
+        [HttpPut("{courseId}")]
+        public IActionResult UpdateCourse(Guid authorId, Guid courseId, CourseForUpdatingDto courseForUpdatingDto)
+        {
+            if(!_repo.AuthorExists(authorId)) return BadRequest();
+
+            var course = _repo.GetCourse(authorId, courseId);
+
+            if(course is null) return NotFound();
+
+            _mapper.Map(courseForUpdatingDto, course);
+
+            _repo.UpdateCourse(course);
+
+            _repo.Save();
+
+            return NoContent(); 
+        }
+        
     }
 }

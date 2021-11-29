@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using System;
 
 namespace CourseLibrary.API.ExtensionMethods
 {
@@ -94,7 +95,7 @@ namespace CourseLibrary.API.ExtensionMethods
 
         public static IServiceCollection AddAutoMapperConfig(this IServiceCollection services)
         {
-            services.AddAutoMapper(p => p.AddProfile(new MappingProfile()));
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             return services;
         }
     }

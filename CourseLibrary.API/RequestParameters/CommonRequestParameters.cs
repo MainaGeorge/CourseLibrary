@@ -2,7 +2,7 @@
 {
     public abstract class CommonRequestParameters
     {
-        private int _pageSize = 10;
+        private int _pageSize = 100;
         private int _pageNumber = 1;
         private const int MaxPages = 100;
 

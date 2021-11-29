@@ -1,23 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
 
 namespace CourseLibrary.API.DTOs
 {
-    public class AuthorForCreationDto
+    public class AuthorForCreationDto : AuthorForManipulation
     {
-        [Required]
-        public string FirstName { get; set; }
-
-        [Required]
-        public string LastName { get; set; }
-
-        [Required]
-        public DateTimeOffset DateOfBirth { get; set; }
-
-        [Required]
-        public string MainCategory { get; set; }
-
         public ICollection<CourseForCreationDto> Courses { get; set; } 
             = new List<CourseForCreationDto>();
     }
