@@ -189,7 +189,6 @@ namespace CourseLibrary.API.Services
                     authors = authors.Where(a => string.Equals(a.FirstName, firstName,
                         StringComparison.CurrentCultureIgnoreCase));
                     break;
-
                 default:
                 {
                     if (!string.IsNullOrWhiteSpace(lastName))

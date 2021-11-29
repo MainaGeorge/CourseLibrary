@@ -2,6 +2,9 @@
 using CourseLibrary.API.Data;
 using CourseLibrary.API.Mappings;
 using CourseLibrary.API.Services;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,8 +20,48 @@ namespace CourseLibrary.API.ExtensionMethods
                         {
                             op.ReturnHttpNotAcceptable = true;
                         })
-                    .AddXmlDataContractSerializerFormatters();
-                
+                    .AddXmlDataContractSerializerFormatters()
+                    .ConfigureApiBehaviorOptions(setupAction =>
+                    {
+                        setupAction.InvalidModelStateResponseFactory
+                        = context =>
+                            {
+                            var problemsDetailsFactory = context.HttpContext.RequestServices
+                                .GetRequiredService<ProblemDetailsFactory>();
+                            var problemDetails = problemsDetailsFactory
+                                .CreateValidationProblemDetails(context.HttpContext, context.ModelState);
+
+                            //add additional info not added by default
+                            problemDetails.Detail = "See the error fields for details";
+                            problemDetails.Instance = context.HttpContext.Request.Path;
+
+                            //find out which status code to use
+                            var actionExecutingContext =
+                                context as Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext;
+
+                            if (context.ModelState.ErrorCount > 0 &&
+                                actionExecutingContext?.ActionArguments.Count
+                                 == context.ActionDescriptor.Parameters.Count)
+                            {
+                                problemDetails.Type = "https://courselibrary.com/modelvalidationproblem";
+                                problemDetails.Status = StatusCodes.Status422UnprocessableEntity;
+                                problemDetails.Title = "one or more validation errors occurred";
+
+                                return new UnprocessableEntityObjectResult(problemDetails)
+                                {
+                                    ContentTypes = {"application/problem+json"}
+                                };
+
+                            }
+                            problemDetails.Status = StatusCodes.Status400BadRequest;
+                            problemDetails.Title = "one or more errors occurred";
+
+                            return new BadRequestObjectResult(problemDetails)
+                            {
+                                ContentTypes = {"application/problem+json"}
+                            };
+                        };
+                    });
             return services;
         }
 
