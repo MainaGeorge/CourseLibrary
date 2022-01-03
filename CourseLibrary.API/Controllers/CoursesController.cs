@@ -87,8 +87,9 @@ namespace CourseLibrary.API.Controllers
             return NoContent(); 
         }
 
-        [HttpPatch("{courseId}")]
-        public ActionResult PatchCourse(Guid authorId, Guid courseId, JsonPatchDocument<CourseForUpdatingDto> patcher)
+        [HttpPatch("{courseId:guid}")]
+        public ActionResult PatchCourse(Guid authorId, Guid courseId,
+            JsonPatchDocument<CourseForUpdatingDto> patcher)
         {
             if(!_repo.AuthorExists(authorId)) return BadRequest();
 
@@ -111,7 +112,7 @@ namespace CourseLibrary.API.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{courseId}")]
+        [HttpDelete("{courseId:guid}")]
         public IActionResult DeleteCourse(Guid courseId, Guid authorId)
         {
             if(!_repo.AuthorExists(authorId)) return BadRequest(); 

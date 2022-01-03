@@ -64,7 +64,7 @@ namespace CourseLibrary.API.Controllers
                 new {authorId = authorToReturn.Id}, authorToReturn);
         }
 
-        [HttpPut("{authorId}")]
+        [HttpPut("{authorId:guid}")]
         public IActionResult UpdateAuthor(Guid authorId, AuthorForUpdatingDto authorForUpdatingDto)
         {
             var author = _repo.GetAuthor(authorId);
@@ -80,7 +80,7 @@ namespace CourseLibrary.API.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{authorId}")]
+        [HttpPatch("{authorId:guid}")]
         public IActionResult PatchAuthor(Guid authorId, JsonPatchDocument<AuthorForUpdatingDto> patcher)
         {
             var author = _repo.GetAuthor(authorId);
@@ -103,7 +103,7 @@ namespace CourseLibrary.API.Controllers
 
         }
 
-        [HttpDelete("{authorId}")]
+        [HttpDelete("{authorId:guid}")]
         public IActionResult DeleteAuthor(Guid authorId)
         {
             var author = _repo.GetAuthor(authorId);

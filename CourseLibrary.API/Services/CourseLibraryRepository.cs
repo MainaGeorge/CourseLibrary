@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using CourseLibrary.API.Contracts;
 using CourseLibrary.API.Data;
 using CourseLibrary.API.Entities;
 using CourseLibrary.API.RequestParameters;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace CourseLibrary.API.Services
 {
